@@ -1,0 +1,2 @@
+# CuliuLLMEnginnering
+用于大模型工程(LLM Enginnering)的工程仓库，学生直接从该仓库fork代码到自己的个人仓库当中使用
