@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>预言家小游戏</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <!-- 登录页面 -->
+        <div id="loginPage" class="page active">
+            <h1 class="game-title">🔮 预言家小游戏</h1>
+            <div class="panel">
+                <div class="error-message" id="loginError"></div>
+                <div class="form-group">
+                    <label for="username">用户名</label>
+                    <input type="text" id="username" placeholder="请输入用户名" class="game-input">
+                </div>
+                <div class="form-group">
+                    <label for="password">密码</label>
+                    <input type="password" id="password" placeholder="请输入密码" class="game-input">
+                </div>
+                <button class="btn btn-primary" onclick="login()">▶ 登录</button>
+                <button class="btn btn-secondary" onclick="showRegister()">📝 注册账号</button>
+            </div>
+        </div>
+
+        <!-- 注册页面 -->
+        <div id="registerPage" class="page">
+            <h1 class="game-title">📝 注册账号</h1>
+            <div class="panel">
+                <div class="error-message" id="registerError"></div>
+                <div class="success-message" id="registerSuccess"></div>
+                <div class="form-group">
+                    <label for="newUsername">用户名</label>
+                    <input type="text" id="newUsername" placeholder="请输入用户名" class="game-input">
+                </div>
+                <div class="form-group">
+                    <label for="newPassword">密码</label>
+                    <input type="password" id="newPassword" placeholder="请输入密码" class="game-input">
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword">确认密码</label>
+                    <input type="password" id="confirmPassword" placeholder="请再次输入密码" class="game-input">
+                </div>
+                <button class="btn btn-success" onclick="register()">✅ 注册</button>
+                <button class="btn btn-back" onclick="showLogin()">← 返回</button>
+            </div>
+        </div>
+
+        <!-- 主菜单页面 -->
+        <div id="menuPage" class="page">
+            <h1 class="game-title">🔮 预言家小游戏</h1>
+            <div class="panel menu-panel">
+                <p class="welcome-text">欢迎，<span id="currentUser" class="player-name"></span>！</p>
+                <p class="points-display-text">当前积分：<span id="menuPoints" class="points-display">0</span></p>
+                <button class="btn btn-primary btn-large" onclick="showCreateRoom()">🏠 创建房间</button>
+                <button class="btn btn-primary btn-large" onclick="showJoinRoom()">🚪 加入房间</button>
+                <button class="btn btn-gacha" onclick="showGacha()">🎴 抽卡</button>
+                <button class="btn btn-secondary" onclick="showLeaderboard()">🏆 排行榜</button>
+                <button class="btn btn-danger" onclick="logout()">🚪 退出</button>
+            </div>
+        </div>
+
+        <!-- 创建房间页面 -->
+        <div id="createRoomPage" class="page">
+            <h1 class="game-title">🏠 创建房间</h1>
+            <div class="panel">
+                <div class="form-group">
+                    <label for="roomCode">房间号（6 位）</label>
+                    <input type="text" id="roomCode" placeholder="留空自动生成" maxlength="6" class="game-input">
+                </div>
+                <div class="form-group">
+                    <label for="gridSize">网格大小</label>
+                    <select id="gridSize" class="game-input">
+                        <option value="5,8">5 × 8</option>
+                        <option value="6,9">6 × 9</option>
+                        <option value="7,10">7 × 10</option>
+                        <option value="custom">自定义</option>
+                    </select>
+                </div>
+                <div class="form-group" id="customGrid" style="display: none;">
+                    <label>自定义网格</label>
+                    <div class="custom-inputs">
+                        <input type="number" id="customRows" placeholder="行数" min="3" max="20" class="game-input">
+                        <input type="number" id="customCols" placeholder="列数" min="3" max="20" class="game-input">
+                    </div>
+                </div>
+                <button class="btn btn-success" onclick="createRoom()">✅ 创建</button>
+                <button class="btn btn-back" onclick="showMenu()">← 返回</button>
+            </div>
+        </div>
+
+        <!-- 加入房间页面 -->
+        <div id="joinRoomPage" class="page">
+            <h1 class="game-title">🚪 加入房间</h1>
+            <div class="panel">
+                <div class="error-message" id="joinError"></div>
+                <div class="form-group">
+                    <label for="joinRoomCode">房间号</label>
+                    <input type="text" id="joinRoomCode" placeholder="输入 6 位房间号" maxlength="6" class="game-input">
+                </div>
+                <button class="btn btn-success" onclick="joinRoom()">✅ 加入</button>
+                <button class="btn btn-back" onclick="showMenu()">← 返回</button>
+            </div>
+        </div>
+
+        <!-- 抽卡页面 -->
+        <div id="gachaPage" class="page">
+            <h1 class="game-title">🎴 卡牌收集</h1>
+            <div class="panel gacha-panel">
+                <div class="gacha-container">
+                    <div class="gacha-left">
+                        <div class="gacha-info">
+                            <p>当前积分：<span id="currentPoints" class="points-display">0</span></p>
+                            <p>抽卡消耗：<span class="points-display">50</span> 积分/次</p>
+                        </div>
+                        <div class="gacha-display">
+                            <div class="card-slot" id="cardSlot">
+                                <span class="card-placeholder">?</span>
+                            </div>
+                        </div>
+                        <div class="gacha-result" id="gachaResult"></div>
+                        <button class="btn btn-gacha btn-large" onclick="doGacha()">🎴 抽取卡牌 (50 积分)</button>
+                        <button class="btn btn-gacha" onclick="doGachaMulti()">🎴🎴🎴 十连抽 (500 积分)</button>
+                        <div class="card-pool">
+                            <h3>📦 卡池预览</h3>
+                            <div class="card-pool-list" id="cardPoolList"></div>
+                        </div>
+                    </div>
+                    <div class="gacha-right">
+                        <h3>🎒 我的卡牌</h3>
+                        <div class="my-cards" id="myCards"></div>
+                        <div class="unlocked-colors">
+                            <h3>🎨 已解锁颜色</h3>
+                            <div class="color-list" id="unlockedColors"></div>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-back" onclick="showMenu()">← 返回</button>
+            </div>
+        </div>
+
+        <!-- 等待玩家页面 -->
+        <div id="waitingPage" class="page">
+            <h1 class="game-title">⏳ 等待玩家</h1>
+            <div class="panel">
+                <div class="room-info">
+                    <h3>房间号</h3>
+                    <div class="room-code" id="waitingRoomCode">------</div>
+                </div>
+                <div class="waiting-message">
+                    <div class="spinner"></div>
+                    <p>等待其他玩家加入...</p>
+                    <p class="hint">请对方在另一设备上输入相同的房间号</p>
+                </div>
+                <div class="game-info">
+                    <div class="player-info player-1" id="waitingPlayer1">
+                        <h3>房主</h3>
+                        <div class="score" id="waitingPlayer1Name">-</div>
+                    </div>
+                    <div class="player-info player-2" id="waitingPlayer2">
+                        <h3>玩家 2</h3>
+                        <div class="score">等待中...</div>
+                    </div>
+                </div>
+                <button class="btn btn-danger" onclick="cancelRoom()">❌ 取消</button>
+            </div>
+        </div>
+
+        <!-- 颜色选择页面 -->
+        <div id="colorSelectPage" class="page">
+            <h1 class="game-title">🎨 选择颜色</h1>
+            <div class="panel">
+                <p class="welcome-text">房间已满！请选择你的颜色</p>
+                <div class="room-info">
+                    <h3>房间号</h3>
+                    <div class="room-code" id="colorSelectRoomCode">------</div>
+                </div>
+                <div class="color-options" id="colorOptions"></div>
+                <div class="selected-info">
+                    <p>已选：<span id="selectedColorName">未选择</span></p>
+                </div>
+                <button class="btn btn-success" id="confirmColorBtn" onclick="confirmColor()" disabled>✅ 确认</button>
+                <div class="waiting-message" id="colorWaitingMessage" style="display: none;">
+                    <div class="spinner"></div>
+                    <p>等待对方选择颜色...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 游戏页面 -->
+        <div id="gamePage" class="page">
+            <h1 class="game-title">🎮 对战中</h1>
+            <div class="panel">
+                <div class="room-info">
+                    <h3>房间号</h3>
+                    <div class="room-code" id="gameRoomCode">------</div>
+                    <p class="status-text">
+                        <span class="status-indicator status-playing"></span>
+                        <span id="gameStatus">游戏中</span>
+                    </p>
+                </div>
+                <div class="game-info">
+                    <div class="player-info" id="player1Info">
+                        <h3 id="player1Label">玩家 1</h3>
+                        <div class="score-container">
+                            <span class="score" id="player1Score">0</span>
+                            <span class="multiplier" id="player1Multiplier"></span>
+                        </div>
+                        <div id="player1Name"></div>
+                    </div>
+                    <div class="player-info" id="player2Info">
+                        <h3 id="player2Label">玩家 2</h3>
+                        <div class="score-container">
+                            <span class="score" id="player2Score">0</span>
+                            <span class="multiplier" id="player2Multiplier"></span>
+                        </div>
+                        <div id="player2Name"></div>
+                    </div>
+                </div>
+                
+                <!-- 卡牌使用区域 -->
+                <div class="cards-section" id="cardsSection">
+                    <h3>🃏 可用卡牌 (每局限用一次)</h3>
+                    <div class="available-cards" id="availableCards"></div>
+                </div>
+                
+                <div class="grid-container" id="gridContainer"></div>
+                <div class="input-section">
+                    <h3>⌨️ 键盘输入</h3>
+                    <p class="hint">选择格子后，按 <strong>1-9</strong> 或 <strong>X</strong>，按 <strong>回车</strong> 确认</p>
+                    <p class="hint small">按 ESC 或点击空白处取消</p>
+                </div>
+                <button class="btn btn-danger" onclick="endGame()">❌ 结束</button>
+                <button class="btn btn-back" onclick="showMenu()">← 返回</button>
+            </div>
+        </div>
+
+        <!-- 游戏结束页面 -->
+        <div id="gameOverPage" class="page">
+            <h1 class="game-title">🏁 游戏结束</h1>
+            <div class="panel">
+                <div class="game-over">
+                    <h2 id="winnerText"></h2>
+                    <div class="game-info">
+                        <div class="player-info" id="finalPlayer1Info">
+                            <h3 id="finalPlayer1Label">玩家 1</h3>
+                            <div class="score" id="finalPlayer1Score">0</div>
+                            <div id="finalPlayer1Name"></div>
+                        </div>
+                        <div class="player-info" id="finalPlayer2Info">
+                            <h3 id="finalPlayer2Label">玩家 2</h3>
+                            <div class="score" id="finalPlayer2Score">0</div>
+                            <div id="finalPlayer2Name"></div>
+                        </div>
+                    </div>
+                    <p id="gameResult" class="result-text"></p>
+                    <p class="score-gained">本局获得积分：<span id="scoreGained">0</span></p>
+                </div>
+                <button class="btn btn-primary" onclick="showMenu()">🏠 首页</button>
+                <button class="btn btn-success" onclick="viewLeaderboard()">🏆 排行榜</button>
+            </div>
+        </div>
+
+        <!-- 排行榜页面 -->
+        <div id="leaderboardPage" class="page">
+            <h1 class="game-title">🏆 排行榜</h1>
+            <div class="panel">
+                <div id="leaderboardContent"></div>
+                <button class="btn btn-back" onclick="showMenu()">← 返回</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="mobileKeyboard" class="mobile-keyboard">
+        <div class="keyboard-header">
+            <span>选择数字或叉</span>
+            <button class="keyboard-close" onclick="closeMobileKeyboard()">✕</button>
+        </div>
+        <div class="keyboard-keys">
+            <button class="key-btn" onclick="inputMobileNumber(1)">1</button>
+            <button class="key-btn" onclick="inputMobileNumber(2)">2</button>
+            <button class="key-btn" onclick="inputMobileNumber(3)">3</button>
+            <button class="key-btn" onclick="inputMobileNumber(4)">4</button>
+            <button class="key-btn" onclick="inputMobileNumber(5)">5</button>
+            <button class="key-btn" onclick="inputMobileNumber(6)">6</button>
+            <button class="key-btn" onclick="inputMobileNumber(7)">7</button>
+            <button class="key-btn" onclick="inputMobileNumber(8)">8</button>
+            <button class="key-btn" onclick="inputMobileNumber(9)">9</button>
+            <button class="key-btn key-x" onclick="inputMobileNumber('X')">✕</button>
+            <button class="key-btn key-clear" onclick="closeMobileKeyboard()">取消</button>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
