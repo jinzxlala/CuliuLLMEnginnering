@@ -205,3 +205,87 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# =========================
+# OS / Editor
+# =========================
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Cursor local workspace files
+.cursor/
+
+# =========================
+# Python
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+.python-version
+
+# Virtual envs
+.venv/
+venv/
+env/
+ENV/
+
+# Packaging / build
+build/
+dist/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+
+# Test / coverage / cache
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+.cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# =========================
+# Secrets / local config
+# =========================
+.env
+.env.*
+*.env
+secrets.*
+credentials.*
+*.pem
+*.key
+
+# =========================
+# Logs / runtime artifacts
+# =========================
+*.log
+logs/
+reports/
+game_logs/
+
+# Keep folder structure if needed:
+# !logs/.gitkeep
+# !reports/.gitkeep
+# !game_logs/.gitkeep
+
+# =========================
+# Course-specific generated outputs
+# =========================
+**/reports/*.json
+**/reports/*.jsonl
+**/logs/*.json
+**/logs/*.jsonl
+**/logs/*.csv
+
+# Do NOT ignore teaching assets/templates/fixtures by default
+# (e.g. data/, evals/fixtures/, docs/)
