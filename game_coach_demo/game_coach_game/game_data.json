@@ -51,15 +51,15 @@
     },
     "test1": {
       "password": "1111",
-      "wins": 2,
+      "wins": 3,
       "losses": 0,
       "draws": 1,
-      "totalScore": 8
+      "totalScore": 13
     },
     "test2": {
       "password": "2222",
       "wins": 0,
-      "losses": 2,
+      "losses": 3,
       "draws": 1,
       "totalScore": 1000
     }
